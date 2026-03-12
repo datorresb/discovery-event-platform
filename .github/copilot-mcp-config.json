@@ -1,0 +1,57 @@
+{
+  "inputs": [
+    {
+      "description": "GitHub Personal Access Token (needs repo, read:org scopes)",
+      "id": "github_pat",
+      "password": true,
+      "type": "promptString"
+    }
+  ],
+  "mcpServers": {
+    "azure": {
+      "args": [
+        "-y",
+        "@azure/mcp@latest",
+        "server",
+        "start"
+      ],
+      "command": "npx",
+      "tools": [
+        "*"
+      ],
+      "type": "stdio"
+    },
+    "context7": {
+      "tools": [
+        "*"
+      ],
+      "type": "sse",
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "github": {
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "command": "npx",
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github_pat}"
+      },
+      "tools": [
+        "*"
+      ],
+      "type": "stdio"
+    },
+    "terraform": {
+      "args": [
+        "-y",
+        "terraform-mcp-server"
+      ],
+      "command": "npx",
+      "tools": [
+        "*"
+      ],
+      "type": "stdio"
+    }
+  }
+}
