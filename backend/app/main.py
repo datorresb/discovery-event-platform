@@ -1,3 +1,5 @@
+import httpx
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.events import router as events_router
@@ -22,6 +24,7 @@ app.include_router(generate_router, prefix="/api")
 def startup():
     create_tables()
     _migrate_city_names()
+    _check_proxy()
 
 
 def _migrate_city_names():
@@ -40,3 +43,30 @@ def _migrate_city_names():
             print(f"[startup] Migrated {updated} event locations to City / Country format")
     finally:
         db.close()
+
+
+PROXY_URL = "http://localhost:8080"
+
+
+def _check_proxy():
+    """Warn loudly at startup if the Copilot LLM Proxy is not reachable."""
+    try:
+        resp = httpx.get(PROXY_URL, timeout=3, follow_redirects=False)
+        print(f"[startup] ✅ Copilot LLM Proxy is running on {PROXY_URL}")
+    except httpx.ConnectError:
+        print(
+            "\n"
+            "╔══════════════════════════════════════════════════════════════╗\n"
+            "║  ⚠️  Copilot LLM Proxy is NOT running on port 8080!        ║\n"
+            "║                                                            ║\n"
+            "║  AI city generation and enrichment will NOT work.          ║\n"
+            "║                                                            ║\n"
+            "║  To fix, run in a separate terminal:                       ║\n"
+            "║                                                            ║\n"
+            "║    1. unset GITHUB_TOKEN                                   ║\n"
+            "║    2. gh auth login -h github.com -p https -w              ║\n"
+            "║    3. cd backend && python copilot_proxy.py &              ║\n"
+            "╚══════════════════════════════════════════════════════════════╝\n"
+        )
+    except Exception as exc:
+        print(f"[startup] ⚠️  Copilot LLM Proxy check failed: {exc}")

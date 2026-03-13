@@ -16,14 +16,20 @@ Three services, one Codespace, you're live.
 
 Click **Code → Codespaces → Create codespace on main**.
 
-### 2. Authenticate GitHub
+### 2. Authenticate GitHub (required for AI features)
 
-The Copilot LLM proxy needs your GitHub credentials. Run once:
+The Copilot LLM proxy needs a **personal** GitHub token (not the Codespace default).
+Without this, the proxy won't start and AI city generation won't work.
 
 ```bash
+# Step 1: Remove the default Codespace token
 unset GITHUB_TOKEN
+
+# Step 2: Login with your own credentials (opens a browser)
 gh auth login -h github.com -p https -w
 ```
+
+> **How do I know it worked?** Run `unset GITHUB_TOKEN && gh auth token` — it should print a token starting with `gho_`.
 
 ### 3. Start the 3 services
 
